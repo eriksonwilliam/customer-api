@@ -3,6 +3,7 @@ package com.customer.api.adapter.inbound.controller;
 import com.customer.api.application.dto.CustomerDto;
 import com.customer.api.application.port.in.*;
 import com.customer.api.domain.CustomerId;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/customers")
+@Tag(name = "Customers", description = "Gestão de clientes")
 class CustomerController {
 
     private final CreateCustomerUseCase createCustomerUseCase;

@@ -9,15 +9,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 class DeleteCustomerService implements DeleteCustomerUseCase {
-
     private final LoadCustomerPort loadCustomerPort;
     private final DeleteCustomerPort deleteCustomerPort;
-
     DeleteCustomerService(LoadCustomerPort loadCustomerPort, DeleteCustomerPort deleteCustomerPort) {
         this.loadCustomerPort = loadCustomerPort;
         this.deleteCustomerPort = deleteCustomerPort;
     }
-
     @Override
     public void execute(CustomerId customerId) {
         var customer = loadCustomerPort.findById(customerId)

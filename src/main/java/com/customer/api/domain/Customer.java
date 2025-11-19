@@ -24,6 +24,19 @@ public class Customer {
         this.updatedAt = createdAt;
     }
 
+    public Customer(CustomerId id, String name, Cpf cpf, String email, String phone, LocalDateTime createdAt,
+                    LocalDateTime updatedAt, boolean active, LocalDateTime deletedAt) {
+        this.id = id;
+        this.name = name;
+        this.cpf = cpf;
+        this.email = email;
+        this.phone = phone;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.active = active;
+        this.deletedAt = deletedAt;
+    }
+
     public void update(String name, String email, String phone) {
         this.name = name;
         this.email = email;
