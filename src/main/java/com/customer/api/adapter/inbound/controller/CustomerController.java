@@ -19,14 +19,17 @@ class CustomerController {
     private final CreateCustomerUseCase createCustomerUseCase;
     private final GetCustomerUseCase getCustomerUseCase;
     private final ListCustomersUseCase listCustomersUseCase;
+    private final UpdateCustomerUseCase updateCustomerUseCase;
 
     CustomerController(
             CreateCustomerUseCase createCustomerUseCase,
             GetCustomerUseCase getCustomerUseCase,
-            ListCustomersUseCase listCustomersUseCase) {
+            ListCustomersUseCase listCustomersUseCase,
+            UpdateCustomerUseCase updateCustomerUseCase) {
         this.createCustomerUseCase = createCustomerUseCase;
         this.getCustomerUseCase = getCustomerUseCase;
         this.listCustomersUseCase = listCustomersUseCase;
+        this.updateCustomerUseCase = updateCustomerUseCase;
     }
 
     @PostMapping
@@ -51,5 +54,11 @@ class CustomerController {
         var query = new ListCustomersQuery(search, pageable);
         Page<CustomerDto> page = listCustomersUseCase.execute(query);
         return ResponseEntity.ok(page);
+    }
+
+    @PutMapping("/{id}")
+    ResponseEntity<Void> update(@PathVariable UUID id, @RequestBody @Valid UpdateCustomerCommand command) {
+        updateCustomerUseCase.execute(CustomerId.from(id.toString()), command);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,16 +1,14 @@
 package com.customer.api.domain;
 
-import com.customer.api.domain.exception.CustomerAlreadyExistsException;
-
 import java.time.LocalDateTime;
 
 public class Customer {
 
     private final CustomerId id;
-    private final String name;
-    private final Cpf cpf;
-    private final String email;
-    private final String phone;
+    private String name;
+    private Cpf cpf;
+    private String email;
+    private String phone;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -25,6 +23,17 @@ public class Customer {
     }
 
     public void update(String name, String email, String phone) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void update(String name, String cpf, String email, String phone) {
+        this.name = name;
+        this.cpf = new Cpf(cpf);
+        this.email = email;
+        this.phone = phone;
         this.updatedAt = LocalDateTime.now();
     }
 
