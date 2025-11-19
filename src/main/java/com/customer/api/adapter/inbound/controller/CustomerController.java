@@ -20,16 +20,20 @@ class CustomerController {
     private final GetCustomerUseCase getCustomerUseCase;
     private final ListCustomersUseCase listCustomersUseCase;
     private final UpdateCustomerUseCase updateCustomerUseCase;
+    private final DeleteCustomerUseCase deleteCustomerUseCase;
 
     CustomerController(
             CreateCustomerUseCase createCustomerUseCase,
             GetCustomerUseCase getCustomerUseCase,
             ListCustomersUseCase listCustomersUseCase,
-            UpdateCustomerUseCase updateCustomerUseCase) {
+            UpdateCustomerUseCase updateCustomerUseCase,
+            DeleteCustomerUseCase deleteCustomerUseCase) {
+
         this.createCustomerUseCase = createCustomerUseCase;
         this.getCustomerUseCase = getCustomerUseCase;
         this.listCustomersUseCase = listCustomersUseCase;
         this.updateCustomerUseCase = updateCustomerUseCase;
+        this.deleteCustomerUseCase = deleteCustomerUseCase;
     }
 
     @PostMapping
@@ -59,6 +63,12 @@ class CustomerController {
     @PutMapping("/{id}")
     ResponseEntity<Void> update(@PathVariable UUID id, @RequestBody @Valid UpdateCustomerCommand command) {
         updateCustomerUseCase.execute(CustomerId.from(id.toString()), command);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> delete(@PathVariable UUID id) {
+        deleteCustomerUseCase.execute(CustomerId.from(id.toString()));
         return ResponseEntity.noContent().build();
     }
 }

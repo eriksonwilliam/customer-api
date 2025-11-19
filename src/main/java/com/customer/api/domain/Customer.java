@@ -11,6 +11,8 @@ public class Customer {
     private String phone;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean active = true;
+    private LocalDateTime deletedAt;
 
     public Customer(CustomerId id, String name, Cpf cpf, String email, String phone, LocalDateTime createdAt) {
         this.id = id;
@@ -37,31 +39,18 @@ public class Customer {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public CustomerId id() {
-        return id;
+    public void delete() {
+        this.active = false;
+        this.deletedAt = LocalDateTime.now();
     }
 
-    public String name() {
-        return name;
-    }
-
-    public Cpf cpf() {
-        return cpf;
-    }
-
-    public String email() {
-        return email;
-    }
-
-    public String phone() {
-        return phone;
-    }
-
-    public LocalDateTime createdAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime updatedAt() {
-        return updatedAt;
-    }
+    public CustomerId id() { return id; }
+    public String name() { return name; }
+    public Cpf cpf() { return cpf; }
+    public String email() { return email; }
+    public String phone() { return phone; }
+    public LocalDateTime createdAt() { return createdAt; }
+    public LocalDateTime updatedAt() { return updatedAt; }
+    public boolean active() { return active; }
+    public LocalDateTime deletedAt() { return deletedAt; }
 }
