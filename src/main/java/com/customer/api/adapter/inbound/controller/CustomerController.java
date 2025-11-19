@@ -1,13 +1,11 @@
 package com.customer.api.adapter.inbound.controller;
 
 import com.customer.api.application.dto.CustomerDto;
-import com.customer.api.application.port.in.CreateCustomerCommand;
-import com.customer.api.application.port.in.CreateCustomerUseCase;
-import com.customer.api.application.port.in.GetCustomerQuery;
-import com.customer.api.application.port.in.GetCustomerUseCase;
+import com.customer.api.application.port.in.*;
 import com.customer.api.domain.CustomerId;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +18,15 @@ class CustomerController {
 
     private final CreateCustomerUseCase createCustomerUseCase;
     private final GetCustomerUseCase getCustomerUseCase;
+    private final ListCustomersUseCase listCustomersUseCase;
 
-    CustomerController(CreateCustomerUseCase createCustomerUseCase, GetCustomerUseCase getCustomerUseCase) {
+    CustomerController(
+            CreateCustomerUseCase createCustomerUseCase,
+            GetCustomerUseCase getCustomerUseCase,
+            ListCustomersUseCase listCustomersUseCase) {
         this.createCustomerUseCase = createCustomerUseCase;
         this.getCustomerUseCase = getCustomerUseCase;
+        this.listCustomersUseCase = listCustomersUseCase;
     }
 
     @PostMapping
@@ -38,5 +41,15 @@ class CustomerController {
     ResponseEntity<CustomerDto> get(@PathVariable UUID id) {
         CustomerDto customer = getCustomerUseCase.execute(new GetCustomerQuery(CustomerId.from(id.toString())));
         return ResponseEntity.ok(customer);
+    }
+
+    @GetMapping
+    ResponseEntity<Page<CustomerDto>> list(
+            @RequestParam(required = false) String search,
+            Pageable pageable) {
+
+        var query = new ListCustomersQuery(search, pageable);
+        Page<CustomerDto> page = listCustomersUseCase.execute(query);
+        return ResponseEntity.ok(page);
     }
 }
