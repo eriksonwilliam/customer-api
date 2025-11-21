@@ -8,10 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 import java.util.UUID;
 
-interface CustomerJpaRepository extends JpaRepository<CustomerEntity, UUID> {
-
+public interface CustomerJpaRepository extends JpaRepository<CustomerEntity, UUID> {
     boolean existsByCpf(String cpf);
-
+    boolean existsByEmail(String email);
     Optional<CustomerEntity> findByCpf(String cpf);
 
     @Query("SELECT c FROM CustomerEntity c WHERE c.active = true " +
@@ -19,3 +18,4 @@ interface CustomerJpaRepository extends JpaRepository<CustomerEntity, UUID> {
             "OR LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')) )")
     Page<CustomerEntity> findActiveCustomers(String search, Pageable pageable);
 }
+

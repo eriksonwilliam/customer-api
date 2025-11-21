@@ -9,6 +9,7 @@ import com.customer.api.domain.Customer;
 import com.customer.api.domain.CustomerId;
 import com.customer.api.domain.exception.CustomerAlreadyExistsException;
 import com.customer.api.domain.exception.CustomerNotFoundException;
+import com.customer.api.domain.exception.EmailAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,11 +30,21 @@ class UpdateCustomerService implements UpdateCustomerUseCase {
 
         Cpf newCpf = new Cpf(command.cpf());
 
-        if (!customer.cpf().equals(newCpf) && loadCustomerPort.existsByCpf(newCpf)) {
+        boolean cpfChanged = !customer.cpf().equals(newCpf);
+        boolean emailChanged = !customer.email().equals(command.email());
+
+        if (cpfChanged && loadCustomerPort.existsByCpf(newCpf)) {
             throw new CustomerAlreadyExistsException(command.cpf());
         }
+        if (emailChanged && loadCustomerPort.existsByEmail(command.email())) {
+            throw new EmailAlreadyExistsException(command.email());
+        }
 
-        customer.update(command.name(), command.email(), command.phone());
+        if (cpfChanged) {
+            customer.update(command.name(), command.cpf(), command.email(), command.phone());
+        } else {
+            customer.update(command.name(), command.email(), command.phone());
+        }
 
         updateCustomerPort.update(customer);
     }

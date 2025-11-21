@@ -10,4 +10,5 @@ public interface LoadCustomerPort {
     Optional<Customer> findById(CustomerId id);
     Optional<Customer> findByCpf(Cpf cpf);
     boolean existsByCpf(Cpf cpf);
+    boolean existsByEmail(String email);
 }

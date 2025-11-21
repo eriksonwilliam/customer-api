@@ -19,15 +19,20 @@ class GetCustomerService implements GetCustomerUseCase {
     @Override
     public CustomerDto execute(GetCustomerQuery query) {
         return loadCustomerPort.findById(query.customerId())
-                .map(customer -> new CustomerDto(
-                        customer.id().value(),
-                        customer.name(),
-                        customer.cpf().value(),
-                        customer.email(),
-                        customer.phone(),
-                        customer.createdAt(),
-                        customer.updatedAt()
-                ))
+                .map(customer -> {
+                    if (!customer.active()) {
+                        throw new CustomerNotFoundException(query.customerId().value());
+                    }
+                    return new CustomerDto(
+                            customer.id().value(),
+                            customer.name(),
+                            customer.cpf().value(),
+                            customer.email(),
+                            customer.phone(),
+                            customer.createdAt(),
+                            customer.updatedAt()
+                    );
+                })
                 .orElseThrow(() -> new CustomerNotFoundException(query.customerId().value()));
     }
 }

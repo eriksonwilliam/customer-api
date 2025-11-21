@@ -9,6 +9,7 @@ import com.customer.api.domain.Cpf;
 import com.customer.api.domain.Customer;
 import com.customer.api.domain.CustomerId;
 import com.customer.api.domain.exception.CustomerAlreadyExistsException;
+import com.customer.api.domain.exception.EmailAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,9 @@ class CreateCustomerService implements CreateCustomerUseCase {
 
         if (loadCustomerPort.existsByCpf(cpf)) {
             throw new CustomerAlreadyExistsException(command.cpf());
+        }
+        if (loadCustomerPort.existsByEmail(command.email())) {
+            throw new EmailAlreadyExistsException(command.email());
         }
 
         Customer customer = new Customer(
