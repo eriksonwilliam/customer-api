@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///testdb
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+logging:
+  level:
+    root: WARN
+    org.springframework: WARN
+    com.customer.api: DEBUG
