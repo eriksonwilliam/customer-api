@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 class ListCustomersServiceTest {
@@ -77,5 +78,25 @@ class ListCustomersServiceTest {
 
         assertEquals(1, result.getTotalElements());
         assertEquals("Ativo", result.getContent().get(0).name());
+    }
+
+    @Test
+    void listaClientesComPaginacaoVazia() {
+        when(loadPagePort.findAll(any(), any(Pageable.class))).thenReturn(Page.empty());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<CustomerDto> result = service.execute(new ListCustomersQuery(null, pageable));
+        assertTrue(result.isEmpty());
+        assertEquals(0, result.getTotalElements());
+    }
+
+    @Test
+    void listaClientesComFiltroNulo() {
+        Customer c1 = new Customer(CustomerId.generate(), "Ana Souza", new Cpf("52998224725"), "ana@test.com", "11911112222", LocalDateTime.now());
+        Page<Customer> page = new PageImpl<>(List.of(c1));
+        when(loadPagePort.findAll(isNull(), any(Pageable.class))).thenReturn(page);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<CustomerDto> result = service.execute(new ListCustomersQuery(null, pageable));
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Ana Souza", result.getContent().get(0).name());
     }
 }

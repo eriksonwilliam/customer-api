@@ -101,5 +101,31 @@ class UpdateCustomerServiceTest {
         verify(loadPort, times(1)).existsByCpf(new Cpf("14538220620"));
         verify(loadPort, never()).existsByEmail("existe@test.com");
     }
-}
 
+    @Test
+    void lancaExcecaoQuandoClienteNaoExiste() {
+        when(loadPort.findById(any())).thenReturn(Optional.empty());
+        UpdateCustomerCommand command = new UpdateCustomerCommand("Nome", "52998224725", "email@test.com", "1199999");
+        assertThrows(com.customer.api.domain.exception.CustomerNotFoundException.class, () -> service.execute(CustomerId.generate(), command));
+    }
+
+    @Test
+    void lancaExcecaoGenericaSeUpdateFalhar() {
+        Customer customer = new Customer(CustomerId.generate(), "Nome", new Cpf("52998224725"), "email@test.com", null, LocalDateTime.now());
+        when(loadPort.findById(any())).thenReturn(Optional.of(customer));
+        when(loadPort.existsByCpf(any())).thenReturn(false);
+        doThrow(new RuntimeException("Falha update")).when(updatePort).update(any());
+        UpdateCustomerCommand command = new UpdateCustomerCommand("Nome", "52998224725", "email@test.com", null);
+        assertThrows(RuntimeException.class, () -> service.execute(customer.id(), command));
+    }
+
+    @Test
+    void mantemDadosSemAlteracaoNaoDisparaEvento() {
+        Customer customer = new Customer(CustomerId.generate(), "Nome", new Cpf("52998224725"), "email@test.com", null, LocalDateTime.now());
+        when(loadPort.findById(any())).thenReturn(Optional.of(customer));
+        when(loadPort.existsByCpf(any())).thenReturn(false);
+        UpdateCustomerCommand command = new UpdateCustomerCommand("Nome", "52998224725", "email@test.com", null);
+        service.execute(customer.id(), command);
+        verify(eventPublisher).publish(any(CustomerEvent.class)); // evento ainda é disparado, mas dados não mudam
+    }
+}

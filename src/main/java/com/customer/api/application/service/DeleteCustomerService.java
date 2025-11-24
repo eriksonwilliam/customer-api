@@ -25,6 +25,10 @@ class DeleteCustomerService implements DeleteCustomerUseCase {
         var customer = loadCustomerPort.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId.value()));
 
+        if (!customer.active()) {
+            throw new CustomerNotFoundException(customerId.value());
+        }
+
         customer.delete();
         deleteCustomerPort.delete(customer);
         eventPublisher.publish(CustomerEvent.deleted(customer));

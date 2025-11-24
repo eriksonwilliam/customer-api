@@ -50,4 +50,21 @@ class CreateCustomerServiceTest {
 
         assertThrows(CustomerAlreadyExistsException.class, () -> service.execute(command));
     }
+
+    @Test
+    void naoPermiteEmailDuplicado() {
+        when(loadPort.existsByCpf(any(Cpf.class))).thenReturn(false);
+        when(loadPort.existsByEmail("joao@test.com")).thenReturn(true);
+        CreateCustomerCommand command = new CreateCustomerCommand("João", "52998224725", "joao@test.com", null);
+        assertThrows(com.customer.api.domain.exception.EmailAlreadyExistsException.class, () -> service.execute(command));
+    }
+
+    @Test
+    void lancaExcecaoGenericaSeSalvarFalhar() {
+        when(loadPort.existsByCpf(any())).thenReturn(false);
+        when(loadPort.existsByEmail(any())).thenReturn(false);
+        doThrow(new RuntimeException("Falha ao salvar")).when(savePort).save(any());
+        CreateCustomerCommand command = new CreateCustomerCommand("João", "52998224725", "joao@test.com", null);
+        assertThrows(RuntimeException.class, () -> service.execute(command));
+    }
 }

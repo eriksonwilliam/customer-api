@@ -61,5 +61,23 @@ class DeleteCustomerServiceTest {
         assertThrows(CustomerNotFoundException.class, () -> service.execute(id));
         verify(deletePort, never()).delete(any());
     }
-}
 
+    @Test
+    void lancaExcecaoSeClienteJaEstaDeletado() {
+        CustomerId id = CustomerId.generate();
+        Customer customer = new Customer(id, "Maria Silva", new Cpf("52998224725"), "maria@test.com", "11999999999", LocalDateTime.now());
+        customer.delete();
+        when(loadPort.findById(id)).thenReturn(Optional.of(customer));
+        assertThrows(com.customer.api.domain.exception.CustomerNotFoundException.class, () -> service.execute(id));
+        verify(deletePort, never()).delete(any());
+    }
+
+    @Test
+    void lancaExcecaoGenericaSeDeleteFalhar() {
+        CustomerId id = CustomerId.generate();
+        Customer customer = new Customer(id, "Maria Silva", new Cpf("52998224725"), "maria@test.com", "11999999999", LocalDateTime.now());
+        when(loadPort.findById(id)).thenReturn(Optional.of(customer));
+        doThrow(new RuntimeException("Falha delete")).when(deletePort).delete(any());
+        assertThrows(RuntimeException.class, () -> service.execute(id));
+    }
+}

@@ -51,4 +51,13 @@ class GetCustomerServiceTest {
 
         assertThrows(CustomerNotFoundException.class, () -> service.execute(new GetCustomerQuery(id)));
     }
+
+    @Test
+    void lancaExcecaoQuandoClienteEstaInativo() {
+        CustomerId id = CustomerId.generate();
+        Customer customer = new Customer(id, "Inativo", new Cpf("52998224725"), "inativo@test.com", null, LocalDateTime.now());
+        customer.delete();
+        when(loadPort.findById(id)).thenReturn(Optional.of(customer));
+        assertThrows(com.customer.api.domain.exception.CustomerNotFoundException.class, () -> service.execute(new GetCustomerQuery(id)));
+    }
 }
