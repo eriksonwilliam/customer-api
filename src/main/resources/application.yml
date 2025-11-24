@@ -22,6 +22,12 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:customer}
+    password: ${RABBITMQ_PASS:customer123}
+
 server:
   port: 8080
 
@@ -29,3 +35,10 @@ messaging:
   enabled: false
   customer:
     topic: customer.events.v1
+  rabbit:
+    enabled: false
+    exchange: customer.events
+    routing:
+      created: customer.created
+      updated: customer.updated
+      deleted: customer.deleted

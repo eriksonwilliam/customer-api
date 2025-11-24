@@ -37,5 +37,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: customer
+      RABBITMQ_DEFAULT_PASS: customer123
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 volumes:
   postgres_data:

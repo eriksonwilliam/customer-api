@@ -12,4 +12,3 @@ logging:
   level:
     root: WARN
     com.customer.api: INFO
-
