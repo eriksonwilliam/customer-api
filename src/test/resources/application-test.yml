@@ -6,8 +6,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+messaging:
+  enabled: false
 logging:
   level:
     root: WARN
-    org.springframework: WARN
-    com.customer.api: DEBUG
+    com.customer.api: INFO
+

@@ -7,6 +7,8 @@ import com.customer.api.domain.Customer;
 import com.customer.api.domain.CustomerId;
 import com.customer.api.domain.Cpf;
 import com.customer.api.domain.exception.CustomerNotFoundException;
+import com.customer.api.messaging.DomainEventPublisher;
+import com.customer.api.messaging.CustomerEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -20,7 +22,8 @@ class DeleteCustomerServiceTest {
 
     private final LoadCustomerPort loadPort = mock(LoadCustomerPort.class);
     private final DeleteCustomerPort deletePort = mock(DeleteCustomerPort.class);
-    private final DeleteCustomerUseCase service = new DeleteCustomerService(loadPort, deletePort);
+    private final DomainEventPublisher eventPublisher = mock(DomainEventPublisher.class);
+    private final DeleteCustomerUseCase service = new DeleteCustomerService(loadPort, deletePort, eventPublisher);
 
     @Test
     void deletaClienteComSucesso() {
@@ -46,10 +49,11 @@ class DeleteCustomerServiceTest {
         Customer deleted = captor.getValue();
         assertFalse(deleted.active());
         assertNotNull(deleted.deletedAt());
+        verify(eventPublisher).publish(any(CustomerEvent.class));
     }
 
     @Test
-    void lançaExcecaoQuandoClienteNaoExiste() {
+    void lancaExcecaoQuandoClienteNaoExiste() {
         CustomerId id = CustomerId.generate();
 
         when(loadPort.findById(id)).thenReturn(Optional.empty());
@@ -58,3 +62,4 @@ class DeleteCustomerServiceTest {
         verify(deletePort, never()).delete(any());
     }
 }
+

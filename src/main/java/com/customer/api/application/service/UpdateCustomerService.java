@@ -10,6 +10,9 @@ import com.customer.api.domain.CustomerId;
 import com.customer.api.domain.exception.CustomerAlreadyExistsException;
 import com.customer.api.domain.exception.CustomerNotFoundException;
 import com.customer.api.domain.exception.EmailAlreadyExistsException;
+import com.customer.api.messaging.CustomerEvent;
+import com.customer.api.messaging.DomainEventPublisher;
+import com.customer.api.messaging.DomainEventType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,10 +20,12 @@ class UpdateCustomerService implements UpdateCustomerUseCase {
 
     private final LoadCustomerPort loadCustomerPort;
     private final UpdateCustomerPort updateCustomerPort;
+    private final DomainEventPublisher eventPublisher;
 
-    UpdateCustomerService(LoadCustomerPort loadCustomerPort, UpdateCustomerPort updateCustomerPort) {
+    UpdateCustomerService(LoadCustomerPort loadCustomerPort, UpdateCustomerPort updateCustomerPort, DomainEventPublisher eventPublisher) {
         this.loadCustomerPort = loadCustomerPort;
         this.updateCustomerPort = updateCustomerPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -47,5 +52,6 @@ class UpdateCustomerService implements UpdateCustomerUseCase {
         }
 
         updateCustomerPort.update(customer);
+        eventPublisher.publish(CustomerEvent.updated(customer));
     }
 }

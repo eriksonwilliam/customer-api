@@ -10,6 +10,9 @@ import com.customer.api.domain.Customer;
 import com.customer.api.domain.CustomerId;
 import com.customer.api.domain.exception.CustomerAlreadyExistsException;
 import com.customer.api.domain.exception.EmailAlreadyExistsException;
+import com.customer.api.messaging.CustomerEvent;
+import com.customer.api.messaging.DomainEventPublisher;
+import com.customer.api.messaging.DomainEventType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,10 +22,12 @@ class CreateCustomerService implements CreateCustomerUseCase {
 
     private final LoadCustomerPort loadCustomerPort;
     private final SaveCustomerPort saveCustomerPort;
+    private final DomainEventPublisher eventPublisher;
 
-    CreateCustomerService(LoadCustomerPort loadCustomerPort, SaveCustomerPort saveCustomerPort) {
+    CreateCustomerService(LoadCustomerPort loadCustomerPort, SaveCustomerPort saveCustomerPort, DomainEventPublisher eventPublisher) {
         this.loadCustomerPort = loadCustomerPort;
         this.saveCustomerPort = saveCustomerPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -46,6 +51,7 @@ class CreateCustomerService implements CreateCustomerUseCase {
         );
 
         saveCustomerPort.save(customer);
+        eventPublisher.publish(CustomerEvent.created(customer));
 
         return customer.id();
     }

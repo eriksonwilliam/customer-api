@@ -5,8 +5,9 @@ import com.customer.api.application.port.out.LoadCustomerPort;
 import com.customer.api.application.port.out.UpdateCustomerPort;
 import com.customer.api.domain.*;
 import com.customer.api.domain.exception.CustomerAlreadyExistsException;
-import com.customer.api.domain.exception.CustomerNotFoundException;
 import com.customer.api.domain.exception.EmailAlreadyExistsException;
+import com.customer.api.messaging.DomainEventPublisher;
+import com.customer.api.messaging.CustomerEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -20,7 +21,8 @@ class UpdateCustomerServiceTest {
 
     private final LoadCustomerPort loadPort = mock(LoadCustomerPort.class);
     private final UpdateCustomerPort updatePort = mock(UpdateCustomerPort.class);
-    private final UpdateCustomerService service = new UpdateCustomerService(loadPort, updatePort);
+    private final DomainEventPublisher eventPublisher = mock(DomainEventPublisher.class);
+    private final UpdateCustomerService service = new UpdateCustomerService(loadPort, updatePort, eventPublisher);
 
     @Test
     void atualizaComSucesso() {
@@ -34,6 +36,7 @@ class UpdateCustomerServiceTest {
         verify(updatePort).update(captor.capture());
         assertEquals("Novo Nome", captor.getValue().name());
         assertEquals("novo@test.com", captor.getValue().email());
+        verify(eventPublisher).publish(any(CustomerEvent.class));
     }
 
     @Test
@@ -90,16 +93,13 @@ class UpdateCustomerServiceTest {
     void alteraCpfEEmailMasConflitosEmAmbos() {
         Customer customer = new Customer(CustomerId.generate(), "Original", new Cpf("52998224725"), "orig@test.com", null, LocalDateTime.now());
         when(loadPort.findById(any())).thenReturn(Optional.of(customer));
-        // Primeiro deve falhar pelo CPF existente antes de checar email
         when(loadPort.existsByCpf(new Cpf("14538220620"))).thenReturn(true);
-        // Mesmo que email também exista, expectativa é lançar exceção de CPF
         when(loadPort.existsByEmail("existe@test.com")).thenReturn(true);
 
         UpdateCustomerCommand cmd = new UpdateCustomerCommand("Original", "14538220620", "existe@test.com", null);
         assertThrows(CustomerAlreadyExistsException.class, () -> service.execute(customer.id(), cmd));
-        // Garante que email não foi verificado após falha de CPF (pode ou não dependendo de ordem; aqui ordem é CPF primeiro)
         verify(loadPort, times(1)).existsByCpf(new Cpf("14538220620"));
-        // existsByEmail não deve ser chamado se code short-circuit; se for chamado mudar expectativa
         verify(loadPort, never()).existsByEmail("existe@test.com");
     }
 }
+

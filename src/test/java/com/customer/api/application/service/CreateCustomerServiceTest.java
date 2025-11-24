@@ -6,6 +6,8 @@ import com.customer.api.application.port.in.CreateCustomerCommand;
 import com.customer.api.domain.Cpf;
 import com.customer.api.domain.CustomerId;
 import com.customer.api.domain.exception.CustomerAlreadyExistsException;
+import com.customer.api.messaging.DomainEventPublisher;
+import com.customer.api.messaging.CustomerEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -18,7 +20,8 @@ class CreateCustomerServiceTest {
 
     private final LoadCustomerPort loadPort = mock(LoadCustomerPort.class);
     private final SaveCustomerPort savePort = mock(SaveCustomerPort.class);
-    private final CreateCustomerService service = new CreateCustomerService(loadPort, savePort);
+    private final DomainEventPublisher eventPublisher = mock(DomainEventPublisher.class);
+    private final CreateCustomerService service = new CreateCustomerService(loadPort, savePort, eventPublisher);
 
     @Test
     void criaClienteComSucesso() {
@@ -36,6 +39,7 @@ class CreateCustomerServiceTest {
 
         assertEquals("João", saved.name());
         assertEquals("52998224725", saved.cpf().value());
+        verify(eventPublisher).publish(any(CustomerEvent.class));
     }
 
     @Test
