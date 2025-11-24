@@ -18,8 +18,12 @@ class CompositeDomainEventPublisher implements DomainEventPublisher {
     @Override
     public void publish(CustomerEvent event) {
         for (DomainEventPublisher delegate : delegates) {
-            if (delegate == this) continue;
-            delegate.publish(event);
+            if (delegate == null || delegate == this) continue;
+            try {
+                delegate.publish(event);
+            } catch (Exception e) {
+                System.err.println("Erro ao publicar evento em " + delegate + ": " + e.getMessage());
+            }
         }
     }
 }
