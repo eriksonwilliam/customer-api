@@ -91,6 +91,62 @@ Relatório Cucumber em `target/cucumber-reports/cucumber.html`.
 `PageResponse<T>` substitui `Page<T>` na serialização para evitar warning e garantir estabilidade:
 Campos: content, page, size, totalElements, totalPages, first, last.
 
+## Mensageria (Eventos de Domínio)
+
+Eventos publicados quando `messaging.enabled=true`:
+
+`CustomerEvent` (versão 1)
+```
+{
+  "eventId": "<uuid>",
+  "correlationId": "<uuid>",
+  "id": "<customerId>",
+  "type": "CUSTOMER_CREATED | CUSTOMER_UPDATED | CUSTOMER_DELETED",
+  "occurredAt": "2025-11-24T14:41:00Z",
+  "version": 1,
+  "payload": {
+    "name": "Maria Silva",
+    "cpf": "52998224725",
+    "email": "maria@test.com",
+    "phone": "11987654321",
+    "deleted": false
+  }
+}
+```
+
+### Habilitar
+Por padrão `messaging.enabled=false` em `application.yml`. Para ativar:
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--messaging.enabled=true"
+```
+Ou via variável de ambiente:
+```bash
+MESSAGING_ENABLED=true mvn spring-boot:run
+```
+
+### Subir Kafka local (KRaft)
+```bash
+docker compose up -d kafka
+```
+Ver tópicos:
+```bash
+docker exec -it customer-api-kafka-1 bash -c "kafka-topics --bootstrap-server localhost:9092 --list"
+```
+
+### Teste de publicação
+Executar caso de uso de criação e observar logs `Published event type=CUSTOMER_CREATED ...`.
+
+### Design
+- Publisher condicional (`KafkaDomainEventPublisher` vs `NoOpDomainEventPublisher`).
+- Futuros campos: trace/correlation externo (usar header X-Correlation-ID). 
+- Evolução de schema: incrementar `version` e manter compatibilidade.
+
+### Próximos passos mensageria
+- Outbox pattern (garantia de entrega) usando tabela outbox + scheduler.
+- Dead-letter topic para falhas.
+- Consumer de projeção (cache / busca). 
+- Metrics (Micrometer) por tipo de evento.
+
 ## Próximos passos sugeridos
 - Internacionalizar mensagens (i18n).
 - Index em colunas name/email para busca.

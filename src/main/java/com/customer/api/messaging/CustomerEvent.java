@@ -3,8 +3,11 @@ package com.customer.api.messaging;
 import com.customer.api.domain.Customer;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record CustomerEvent(
+        String eventId,
+        String correlationId,
         String id,
         DomainEventType type,
         Instant occurredAt,
@@ -26,7 +29,11 @@ public record CustomerEvent(
     }
 
     private static CustomerEvent build(Customer customer, DomainEventType type, boolean deleted) {
+        String eventId = UUID.randomUUID().toString();
+        String correlationId = eventId;
         return new CustomerEvent(
+                eventId,
+                correlationId,
                 customer.id().value().toString(),
                 type,
                 Instant.now(),
